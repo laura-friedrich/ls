@@ -15,6 +15,53 @@
 #include <stdlib.h>
 
 
+void printPermissions(int permissions, char * fileName )
+{
+  
+  char* permissionsArray[10];
+  for(int i=0; i<10; i++){
+    permissionsArray[i]="-";
+  }
+
+  if (S_ISDIR(permissions)){
+    permissionsArray[9] = "d";
+  }
+  if (S_IRUSR&permissions){
+    permissionsArray[8] = "r";
+  }
+  if (S_IWUSR&permissions){
+    permissionsArray[7] = "w";
+  }
+  if (S_IXUSR&permissions){
+    permissionsArray[6] = "x";
+  }
+
+  if (S_IRGRP&permissions){
+    permissionsArray[5] = "r";
+  }
+  if (S_IWGRP&permissions){
+    permissionsArray[4] = "w";
+  }
+  if (S_IXGRP&permissions){
+    permissionsArray[3] = "x";
+  }
+
+  if (S_IROTH&permissions){
+    permissionsArray[2] = "r";
+  }
+  if (S_IWOTH&permissions){
+    permissionsArray[1] = "w";
+  }
+  if (S_IXGRP&permissions){
+    permissionsArray[0] = "x";
+  }
+  for(int i=9; i>=0; i--){
+    printf("%s", permissionsArray[i]);
+
+
+    //return permissions;
+  }
+}
 int main(int argc, char *argv[])
 {
   /*Open current directory*/
@@ -59,11 +106,14 @@ int main(int argc, char *argv[])
         struct tm lt;
         localtime_r(&t, &lt); /* convert to struct tm */
         strftime(mtime, sizeof mtime, "%a, %d %b %Y %T", &lt);
+        int permissions = buffer->st_mode;
+        printPermissions(permissions, fileName);
         printf("%d \t %d \t %d \t %s \t %s \n", userID, groupID, size, mtime, fileName);
+
         free(buffer);
       }
     }
-      /*if no args are given, just list files in current directory*/
+    /*if no args are given, just list files in current directory*/
     else{
       if(fileName[0] != '.' || argA == 1){
         printf("%s\t", dp->d_name);
