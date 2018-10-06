@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
         break;
     }
   }
+
+
   /*Run main 'meat' of the program ie produce text to be printed */
 
   /*Go through all files in current directory*/
@@ -71,14 +73,15 @@ int main(int argc, char *argv[])
         grid = getgrgid(groupID);
         char *groupName = grid->gr_name;
 
-        char mtime[80];
+        // Get time
         time_t t = buffer->st_mtime; /*st_mtime is type time_t */
-        struct tm lt;
-        localtime_r(&t, &lt); /* convert to struct tm */
-        strftime(mtime, sizeof mtime, "%a, %d %b %Y %T", &lt);
+        struct tm *info;
+        info = localtime(&t);
+        char *timeFormatted = asctime(info);
+        timeFormatted[strlen(timeFormatted) - 1] = 0;// Remove '\n'
         int permissions = buffer->st_mode;
         printPermissions(permissions);
-        printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, mtime, fileName);
+        printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, timeFormatted, fileName);
 
         free(buffer);
       }
