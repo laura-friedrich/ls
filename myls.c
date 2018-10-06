@@ -13,6 +13,8 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <stdlib.h>
+#include <pwd.h>
+#include <grp.h>
 
 void printPermissions(int permissions);
 
@@ -29,7 +31,7 @@ int main(int argc, char *argv[])
   int argA = 0;
   struct stat *buffer;
   buffer = malloc(sizeof(struct stat));
-  
+
 
   /*get command line args*/
   while ((opt = getopt(argc, argv, "la")) != -1) {
@@ -41,7 +43,7 @@ int main(int argc, char *argv[])
         argA = 1;
         break;
       default: /* '?' */
-        printf("hello");
+        //printf("hello");
         break;
     }
   }
@@ -57,7 +59,18 @@ int main(int argc, char *argv[])
       if(fileName[0] != '.' || argA == 1){
         int size = buffer->st_size;
         int userID = buffer->st_uid;
+
+        // Get username
+        struct passwd *pws;
+        pws = getpwuid(userID);
+        char *username = pws->pw_name;
+
+        //Get group name
         int groupID = buffer->st_gid;
+        struct group *grid;
+        grid = getgrgid(groupID);
+        char *groupName = grid->gr_name;
+
         char mtime[80];
         time_t t = buffer->st_mtime; /*st_mtime is type time_t */
         struct tm lt;
@@ -65,7 +78,7 @@ int main(int argc, char *argv[])
         strftime(mtime, sizeof mtime, "%a, %d %b %Y %T", &lt);
         int permissions = buffer->st_mode;
         printPermissions(permissions);
-        printf("%d \t %d \t %d \t %s \t %s \n", userID, groupID, size, mtime, fileName);
+        printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, mtime, fileName);
 
         free(buffer);
       }
