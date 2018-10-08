@@ -47,9 +47,15 @@ int main(int argc, char *argv[])
   }
 
   for(int i = 0; i < argc; i++){
-    if(opendir(argv[i]) != NULL){
-      // Finding if there exits an argument that's a valid directory
+    if(argc == 1){
+      currentDirectory = opendir(".");
+    } else if(opendir(argv[i]) != NULL){
       currentDirectory = opendir(argv[i]);
+    }
+      // Finding if there exits an argument that's a valid directory
+
+
+
       printf("%s: \n", argv[i]);
 
       /*Run main 'meat' of the program ie produce text to be printed */
@@ -97,7 +103,7 @@ int main(int argc, char *argv[])
       /*clean up*/
       printf("\n\n");
       closedir(currentDirectory);
-    }
+    
   }
 }
 
