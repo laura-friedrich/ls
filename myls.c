@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <grp.h>
+#include <errno.h>
 
 void printPermissions(int permissions);
 
@@ -46,21 +47,36 @@ int main(int argc, char *argv[])
     }
   }
 
-  for(int i = 0; i < argc; i++){
-    if(argc == 1){
-      currentDirectory = opendir(".");
-    } else if(opendir(argv[i]) != NULL){
-      currentDirectory = opendir(argv[i]);
+  // Check to see if parameter provided is directory
+  int useDefaultDirectory = 1;
+  char *defaultDirectory = ".";
+  for(int i = 1; i < argc; i++){// Loop through parameters except for default
+    if(opendir(argv[i]) != NULL){
+      useDefaultDirectory = 0;
+      defaultDirectory = argv[i];
+    }
+  }
+
+  for(int i = 1; i < argc; i++){// Loop through parameters except for default
+    if(opendir(argv[i]) != NULL){ // Prevent duplicates
+      if(currentDirectory != opendir(argv[i])){
+        currentDirectory = opendir(argv[i]);
+      }
+
+      //printf("Recieving directory parameter");
+    }else{
+      if(currentDirectory != opendir(defaultDirectory)){
+        currentDirectory = opendir(defaultDirectory);
+      }
+
     }
       // Finding if there exits an argument that's a valid directory
-
-
-
-      printf("%s: \n", argv[i]);
+      //printf("%s: \n", argv[i]);
 
       /*Run main 'meat' of the program ie produce text to be printed */
 
-      /*Go through all files in current directory*/
+      /*Go through all files in current VALID directory*/
+      errno = 0;
       while ((dp=readdir(currentDirectory)) != NULL){
         char *fileName = dp->d_name;
         /*if -l is an arg, print long*/
@@ -92,18 +108,19 @@ int main(int argc, char *argv[])
             printPermissions(permissions);
             printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, timeFormatted, fileName);
           }
-        }
-        /*if no args are given, just list files in current directory*/
-        else{
+        }else{
+          /*if no args are given, just list files in current directory*/
           if(fileName[0] != '.' || argA == 1){
             printf("%s\t", dp->d_name);
+            printf("\n");
+
           }
         }
+
       }
       /*clean up*/
-      printf("\n\n");
       closedir(currentDirectory);
-    
+
   }
 }
 
