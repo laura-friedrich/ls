@@ -23,14 +23,12 @@ void printFile(char *fileString, int argA, int argL);
 
 int main(int argc, char *argv[])
 {
-  /*Open current directory*/
-
+  // Declaring local variables
   int opt;
   int argL = 0;
   int argA = 0;
   char *pathStringArray[argc];
   int argumentTypeArray[argc];
-
 
   /*Determine if -l, -a, -al, -la have been passed*/
   while ((opt = getopt(argc, argv, "la")) != -1) {
@@ -41,13 +39,12 @@ int main(int argc, char *argv[])
       case 'a':
         argA = 1;
       break;
-      default: /* '?' */
-      //printf("Unrecognized argument. USAGE: ");
+      default: // Do nothing
       break;
     }
   }
 
-  // Loop through argumens to find files and directories
+  // Loop through arguments to find files and directories
   for(int i = 0; i < argc; i++){
     // Check the argument is not a flag
     if ((strcmp(argv[i],"-al") != 0) &&
@@ -67,6 +64,7 @@ int main(int argc, char *argv[])
           pathStringArray[i] = argv[i];
           argumentTypeArray[i] = 1;
         }else{
+          // Argument should not be printed
           pathStringArray[i] = "";
           argumentTypeArray[i] = -1;
         }
@@ -78,26 +76,20 @@ int main(int argc, char *argv[])
     }
   }
 
-  int printCurrent = 0;
-
+  int printCurrent = 0; // Flag to print current directory if no other args given
   for(int i = 1; i < argc; i++){
-    //printf("Path String: %s\tArgument Type: %d\n", pathStringArray[i], argumentTypeArray[i]);
-    // Print if argument is a directory
-    if(argumentTypeArray[i] == 0){
+    if(argumentTypeArray[i] == 0){ // Print if argument is a directory
       printDirectory(pathStringArray[i], argA, argL);
       printCurrent = 2; // Don't need to print current
-    }else if(argumentTypeArray[i] == 1){
+    }else if(argumentTypeArray[i] == 1){ // Print if argument is a file
       printFile(pathStringArray[i], argA, argL);
       printCurrent += 1; // Don't need to print current
-      //print file
     }
   }
 
   if(printCurrent < 1){
     printDirectory(".", argA, argL);
   }
-
-
 }
 
 void printFile(char *fileString, int argA, int argL){
@@ -140,9 +132,7 @@ void printFile(char *fileString, int argA, int argL){
       printf("%s\n", fileString);
     }
   }
-
 }
-
 
 void printDirectory(char *directoryString, int argA, int argL){
   // Declare local variables
@@ -159,12 +149,10 @@ void printDirectory(char *directoryString, int argA, int argL){
 
 void printPermissions(int permissions)
 {
-
   char* permissionsArray[10];
   for(int i=0; i<10; i++){
     permissionsArray[i]="-";
   }
-
   if (S_ISDIR(permissions)){
     permissionsArray[9] = "d";
   }
@@ -177,7 +165,6 @@ void printPermissions(int permissions)
   if (S_IXUSR&permissions){
     permissionsArray[6] = "x";
   }
-
   if (S_IRGRP&permissions){
     permissionsArray[5] = "r";
   }
@@ -187,7 +174,6 @@ void printPermissions(int permissions)
   if (S_IXGRP&permissions){
     permissionsArray[3] = "x";
   }
-
   if (S_IROTH&permissions){
     permissionsArray[2] = "r";
   }
@@ -199,8 +185,5 @@ void printPermissions(int permissions)
   }
   for(int i=9; i>=0; i--){
     printf("%s", permissionsArray[i]);
-
-
-    //return permissions;
   }
 }
