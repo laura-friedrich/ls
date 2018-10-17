@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, "la")) != -1) {
     switch (opt) {
       case 'l':
-      argL = 1;
+        argL = 1;
       break;
       case 'a':
-      argA = 1;
+        argA = 1;
       break;
       default: /* '?' */
       //printf("Unrecognized argument. USAGE: ");
@@ -62,8 +62,7 @@ int main(int argc, char *argv[])
       }else{
         // Check if argument is a file
         struct stat path_stat;
-        stat(argv[i], &path_stat);
-        if(S_ISREG(path_stat.st_mode)){
+        if(stat(argv[i], &path_stat) == 0){
           // Argument is a file
           pathStringArray[i] = argv[i];
           argumentTypeArray[i] = 1;
@@ -137,7 +136,9 @@ void printFile(char *fileString, int argA, int argL){
     }
   }else{
     /*if no args are given, just print file name*/
-    printf("%s\n", fileString);
+    if(fileString[0] != '.' || argA == 1){
+      printf("%s\n", fileString);
+    }
   }
 
 }
