@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
       /*clean up*/
       printf("\n\n");
       closedir(currentDirectory);
-    
+
   }
 }
 
