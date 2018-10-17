@@ -15,30 +15,31 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <grp.h>
+#include <errno.h>
 
 void printPermissions(int permissions);
+void printDirectory(char *directoryString, int argA, int argL);
+void printFile(char *fileString, int argA, int argL);
 
 int main(int argc, char *argv[])
 {
   /*Open current directory*/
-  DIR *currentDirectory;
-  currentDirectory = opendir(".");
 
-
-  struct dirent *dp;
   int opt;
   int argL = 0;
   int argA = 0;
-  struct stat buffer[sizeof(struct stat)];
+  char *pathStringArray[argc];
+  int argumentTypeArray[argc];
 
-  /*get command line args*/
+
+  /*Determine if -l, -a, -al, -la have been passed*/
   while ((opt = getopt(argc, argv, "la")) != -1) {
     switch (opt) {
       case 'l':
-      argL = 1;
+        argL = 1;
       break;
       case 'a':
-      argA = 1;
+        argA = 1;
       break;
       default: /* '?' */
       //printf("Unrecognized argument. USAGE: ");
@@ -46,68 +47,115 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Loop through argumens to find files and directories
   for(int i = 0; i < argc; i++){
-    if(argc == 1){
-      currentDirectory = opendir(".");
-    } else if(opendir(argv[i]) != NULL){
-      currentDirectory = opendir(argv[i]);
-    }
-      // Finding if there exits an argument that's a valid directory
-
-
-
-      printf("%s: \n", argv[i]);
-
-      /*Run main 'meat' of the program ie produce text to be printed */
-
-      /*Go through all files in current directory*/
-      while ((dp=readdir(currentDirectory)) != NULL){
-        char *fileName = dp->d_name;
-        /*if -l is an arg, print long*/
-        if (argL == 1){
-          stat(dp->d_name, buffer);
-          /*if -a is an arg, show hidden files*/
-          if(fileName[0] != '.' || argA == 1){
-            int size = buffer->st_size;
-            int userID = buffer->st_uid;
-
-            // Get username
-            struct passwd *pws;
-            pws = getpwuid(userID);
-            char *username = pws->pw_name;
-
-            //Get group name
-            int groupID = buffer->st_gid;
-            struct group *grid;
-            grid = getgrgid(groupID);
-            char *groupName = grid->gr_name;
-
-            // Get time
-            time_t t = buffer->st_mtime; /*st_mtime is type time_t */
-            struct tm *info;
-            info = localtime(&t);
-            char *timeFormatted = asctime(info);
-            timeFormatted[strlen(timeFormatted) - 1] = 0;// Remove '\n'
-            int permissions = buffer->st_mode;
-            printPermissions(permissions);
-            printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, timeFormatted, fileName);
-          }
-        }
-        /*if no args are given, just list files in current directory*/
-        else{
-          if(fileName[0] != '.' || argA == 1){
-            printf("%s\t", dp->d_name);
-          }
+    // Check the argument is not a flag
+    if ((strcmp(argv[i],"-al") != 0) &&
+    (strcmp(argv[i],"-la") != 0) &&
+    (strcmp(argv[i],"-l") != 0) &&
+    (strcmp(argv[i],"-a") != 0)){
+      // Check if argument is a directory
+      if(opendir(argv[i]) != NULL){
+        // Argument is a directory that we need to print
+        pathStringArray[i] = argv[i];
+        argumentTypeArray[i] = 0;
+      }else{
+        // Check if argument is a file
+        struct stat path_stat;
+        if(stat(argv[i], &path_stat) == 0){
+          // Argument is a file
+          pathStringArray[i] = argv[i];
+          argumentTypeArray[i] = 1;
+        }else{
+          pathStringArray[i] = "";
+          argumentTypeArray[i] = -1;
         }
       }
-      /*clean up*/
-      printf("\n\n");
-      closedir(currentDirectory);
-
+    }else{
+      // Argument doesn't need to be printed
+      pathStringArray[i] = "";
+      argumentTypeArray[i] = -1;
+    }
   }
+
+  int printCurrent = 0;
+
+  for(int i = 1; i < argc; i++){
+    //printf("Path String: %s\tArgument Type: %d\n", pathStringArray[i], argumentTypeArray[i]);
+    // Print if argument is a directory
+    if(argumentTypeArray[i] == 0){
+      printDirectory(pathStringArray[i], argA, argL);
+      printCurrent = 2; // Don't need to print current
+    }else if(argumentTypeArray[i] == 1){
+      printFile(pathStringArray[i], argA, argL);
+      printCurrent += 1; // Don't need to print current
+      //print file
+    }
+  }
+
+  if(printCurrent < 1){
+    printDirectory(".", argA, argL);
+  }
+
+
+}
+
+void printFile(char *fileString, int argA, int argL){
+  // Declare local variables
+  errno = 0;
+  struct stat buffer[sizeof(struct stat)];
+  // Loop through currentDirectory
+  /*if -l is an arg, print long*/
+  if (argL == 1){
+    stat(fileString, buffer);
+    /*if -a is an arg, show hidden files*/
+    if(fileString[0] != '.' || argA == 1){
+      int size = buffer->st_size;
+      int userID = buffer->st_uid;
+
+      // Get username
+      struct passwd *pws;
+      pws = getpwuid(userID);
+      char *username = pws->pw_name;
+
+      //Get group name
+      int groupID = buffer->st_gid;
+      struct group *grid;
+      grid = getgrgid(groupID);
+      char *groupName = grid->gr_name;
+
+      // Get time
+      time_t t = buffer->st_mtime; /*st_mtime is type time_t */
+      struct tm *info;
+      info = localtime(&t);
+      char *timeFormatted = asctime(info);
+      timeFormatted[strlen(timeFormatted) - 1] = 0;// Remove '\n'
+      int permissions = buffer->st_mode;
+      printPermissions(permissions);
+      printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, timeFormatted, fileString);
+    }
+  }else{
+    /*if no args are given, just print file name*/
+    if(fileString[0] != '.' || argA == 1){
+      printf("%s\n", fileString);
+    }
+  }
+
 }
 
 
+void printDirectory(char *directoryString, int argA, int argL){
+  // Declare local variables
+  errno = 0;
+  struct dirent *dp;
+  DIR *currentDirectory = opendir(directoryString);
+  // Loop through currentDirectory
+  while ((dp=readdir(currentDirectory)) != NULL){
+    char *fileName = dp->d_name;
+    printFile(fileName, argA, argL);
+  }
+  closedir(currentDirectory);
+}
 
 void printPermissions(int permissions)
 {
