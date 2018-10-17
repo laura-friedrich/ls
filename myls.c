@@ -48,22 +48,20 @@ int main(int argc, char *argv[])
   }
 
   // Check to see if parameter provided is directory
-  int useDefaultDirectory = 1;
+  int useDefaultDirectory = 0;
   char *defaultDirectory = ".";
   for(int i = 1; i < argc; i++){// Loop through parameters except for default
     if(opendir(argv[i]) != NULL){
-      useDefaultDirectory = 0;
+      useDefaultDirectory = 1;
       defaultDirectory = argv[i];
     }
   }
-
-  for(int i = 1; i < argc; i++){// Loop through parameters except for default
+  int i = useDefaultDirectory;
+  while(i < argc){// Loop through parameters except for default
     if(opendir(argv[i]) != NULL){ // Prevent duplicates
       if(currentDirectory != opendir(argv[i])){
         currentDirectory = opendir(argv[i]);
       }
-
-      //printf("Recieving directory parameter");
     }else{
       if(currentDirectory != opendir(defaultDirectory)){
         currentDirectory = opendir(defaultDirectory);
@@ -76,6 +74,10 @@ int main(int argc, char *argv[])
       /*Run main 'meat' of the program ie produce text to be printed */
 
       /*Go through all files in current VALID directory*/
+      if ((strcmp(argv[i],"-al") != 0) &&
+          (strcmp(argv[i],"-l") != 0) &&
+          (strcmp(argv[i],"-a") != 0)
+        ){
       errno = 0;
       while ((dp=readdir(currentDirectory)) != NULL){
         char *fileName = dp->d_name;
@@ -118,8 +120,10 @@ int main(int argc, char *argv[])
         }
 
       }
+    }
       /*clean up*/
       closedir(currentDirectory);
+      i++;
 
   }
 }
