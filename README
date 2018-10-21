@@ -6,10 +6,10 @@ List of known bugs:
 none?
 
 Resources used:
+-    https://stackoverflow.com/questions/230062/whats-the-best-way-to-check-if-a-file-exists-in-c-cross-platform
 -    https://www.garron.me/en/go2linux/ls-file-permissions.html
 -    https://stackoverflow.com/questions/13542345/how-to-convert-st-mtime-which-get-from-stat-function-to-string-or-char
 -    https://stackoverflow.com/questions/20265328/readdir-beginning-with-dots-instead-of-files/20265398
 -    https://stackoverflow.com/questions/3138600/correct-use-of-stat-on-c
 -    http://www.zentut.com/c-tutorial/c-file-exists/
 -    https://www.cs.bu.edu/teaching/cpp/string/array-vs-ptr/
-
