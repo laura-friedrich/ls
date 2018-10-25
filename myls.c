@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
   int argA = 0;
   char *pathStringArray[argc];
   int argumentTypeArray[argc];
+  int directoryCounter = 0;
 
   /*Determine if -l, -a, -al, -la have been passed*/
   while ((opt = getopt(argc, argv, "la")) != -1) {
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
         // Argument is a directory that we need to print
         pathStringArray[i] = argv[i];
         argumentTypeArray[i] = 0;
+        directoryCounter += 1;
       }else{
         // Check if argument is a file
         struct stat path_stat;
@@ -79,7 +81,11 @@ int main(int argc, char *argv[])
   int printCurrent = 0; // Flag to print current directory if no other args given
   for(int i = 1; i < argc; i++){
     if(argumentTypeArray[i] == 0){ // Print if argument is a directory
+      if(directoryCounter >= 2){
+        printf("%s:\n", pathStringArray[i]);
+      }
       printDirectory(pathStringArray[i], argA, argL);
+      printf("\n");
       printCurrent = 2; // Don't need to print current
     }else if(argumentTypeArray[i] == 1){ // Print if argument is a file
       printFile(pathStringArray[i], argA, argL);
