@@ -149,41 +149,39 @@ void printDirectory(char *directoryString, int argA, int argL){
 
 void printPermissions(int permissions)
 {
-  char* permissionsArray[10];
+  char permissionsArray[11];
   for(int i=0; i<10; i++){
-    permissionsArray[i]="-";
+    permissionsArray[i]='-';
   }
   if (S_ISDIR(permissions)){
-    permissionsArray[9] = "d";
+    permissionsArray[0] = 'd';
   }
   if (S_IRUSR&permissions){
-    permissionsArray[8] = "r";
+    permissionsArray[1] = 'r';
   }
   if (S_IWUSR&permissions){
-    permissionsArray[7] = "w";
+    permissionsArray[2] = 'w';
   }
   if (S_IXUSR&permissions){
-    permissionsArray[6] = "x";
+    permissionsArray[3] = 'x';
   }
   if (S_IRGRP&permissions){
-    permissionsArray[5] = "r";
+    permissionsArray[4] = 'r';
   }
   if (S_IWGRP&permissions){
-    permissionsArray[4] = "w";
+    permissionsArray[5] = 'w';
   }
   if (S_IXGRP&permissions){
-    permissionsArray[3] = "x";
+    permissionsArray[6] = 'x';
   }
   if (S_IROTH&permissions){
-    permissionsArray[2] = "r";
+    permissionsArray[7] = 'r';
   }
   if (S_IWOTH&permissions){
-    permissionsArray[1] = "w";
+    permissionsArray[8] = 'w';
   }
   if (S_IXGRP&permissions){
-    permissionsArray[0] = "x";
+    permissionsArray[9] = 'x';
   }
-  for(int i=9; i>=0; i--){
-    printf("%s", permissionsArray[i]);
-  }
+    printf(permissionsArray);
 }
