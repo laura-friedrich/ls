@@ -36,24 +36,24 @@ int main(int argc, char *argv[])
     switch (opt) {
       case 'l':
         argL = 1;
-      break;
+        break;
       case 'a':
         argA = 1;
-      break;
+        break;
       default: // Do nothing
-      break;
+        break;
     }
   }
 
   // Loop through arguments to find files and directories
-  for(int i = 0; i < argc; i++){
+  for(int i = 0; i < argc; i++) {
     // Check the argument is not a flag
     if ((strcmp(argv[i],"-al") != 0) &&
     (strcmp(argv[i],"-la") != 0) &&
     (strcmp(argv[i],"-l") != 0) &&
     (strcmp(argv[i],"-a") != 0)){
       // Check if argument is a directory
-      if(opendir(argv[i]) != NULL){
+      if(opendir(argv[i]) != NULL) {
         // Argument is a directory that we need to print
         pathStringArray[i] = argv[i];
         argumentTypeArray[i] = 0;
@@ -61,17 +61,17 @@ int main(int argc, char *argv[])
       }else{
         // Check if argument is a file
         struct stat path_stat;
-        if(stat(argv[i], &path_stat) == 0){
+        if(stat(argv[i], &path_stat) == 0) {
           // Argument is a file
           pathStringArray[i] = argv[i];
           argumentTypeArray[i] = 1;
-        }else{
+        }else {
           // Argument should not be printed
           pathStringArray[i] = "";
           argumentTypeArray[i] = -1;
         }
       }
-    }else{
+    }else {
       // Argument doesn't need to be printed
       pathStringArray[i] = "";
       argumentTypeArray[i] = -1;
@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
   }
 
   int printCurrent = 0; // Flag to print current directory if no other args given
-  for(int i = 1; i < argc; i++){
-    if(argumentTypeArray[i] == 0){ // Print if argument is a directory
-      if(directoryCounter >= 2){
+  for(int i = 1; i < argc; i++) {
+    if(argumentTypeArray[i] == 0) { // Print if argument is a directory
+      if(directoryCounter >= 2) {
         printf("%s:\n", pathStringArray[i]);
       }
       printDirectory(pathStringArray[i], argA, argL);
@@ -93,18 +93,18 @@ int main(int argc, char *argv[])
     }
   }
 
-  if(printCurrent < 1){
+  if(printCurrent < 1) {
     printDirectory(".", argA, argL);
   }
 }
 
-void printFile(char *fileString, int argA, int argL){
+void printFile(char *fileString, int argA, int argL) {
   // Declare local variables
   errno = 0;
   struct stat buffer[sizeof(struct stat)];
   // Loop through currentDirectory
   /*if -l is an arg, print long*/
-  if (argL == 1){
+  if (argL == 1) {
     stat(fileString, buffer);
     /*if -a is an arg, show hidden files*/
     if(fileString[0] != '.' || argA == 1){
@@ -132,21 +132,21 @@ void printFile(char *fileString, int argA, int argL){
       printPermissions(permissions);
       printf("\t %s \t %s \t %d \t %s \t %s \n", username, groupName, size, timeFormatted, fileString);
     }
-  }else{
+  }else {
     /*if no args are given, just print file name*/
-    if(fileString[0] != '.' || argA == 1){
+    if(fileString[0] != '.' || argA == 1) {
       printf("%s\n", fileString);
     }
   }
 }
 
-void printDirectory(char *directoryString, int argA, int argL){
+void printDirectory(char *directoryString, int argA, int argL) {
   // Declare local variables
   errno = 0;
   struct dirent *dp;
   DIR *currentDirectory = opendir(directoryString);
   // Loop through currentDirectory
-  while ((dp=readdir(currentDirectory)) != NULL){
+  while ((dp=readdir(currentDirectory)) != NULL) {
     char *fileName = dp->d_name;
     printFile(fileName, argA, argL);
   }
@@ -156,37 +156,37 @@ void printDirectory(char *directoryString, int argA, int argL){
 void printPermissions(int permissions)
 {
   char permissionsArray[11];
-  for(int i=0; i<10; i++){
+  for(int i=0; i<10; i++) {
     permissionsArray[i]='-';
   }
-  if (S_ISDIR(permissions)){
+  if (S_ISDIR(permissions)) {
     permissionsArray[0] = 'd';
   }
-  if (S_IRUSR&permissions){
+  if (S_IRUSR&permissions) {
     permissionsArray[1] = 'r';
   }
-  if (S_IWUSR&permissions){
+  if (S_IWUSR&permissions) {
     permissionsArray[2] = 'w';
   }
-  if (S_IXUSR&permissions){
+  if (S_IXUSR&permissions) {
     permissionsArray[3] = 'x';
   }
-  if (S_IRGRP&permissions){
+  if (S_IRGRP&permissions) {
     permissionsArray[4] = 'r';
   }
-  if (S_IWGRP&permissions){
+  if (S_IWGRP&permissions) {
     permissionsArray[5] = 'w';
   }
-  if (S_IXGRP&permissions){
+  if (S_IXGRP&permissions) {
     permissionsArray[6] = 'x';
   }
-  if (S_IROTH&permissions){
+  if (S_IROTH&permissions) {
     permissionsArray[7] = 'r';
   }
-  if (S_IWOTH&permissions){
+  if (S_IWOTH&permissions) {
     permissionsArray[8] = 'w';
   }
-  if (S_IXGRP&permissions){
+  if (S_IXGRP&permissions) {
     permissionsArray[9] = 'x';
   }
     printf(permissionsArray);
