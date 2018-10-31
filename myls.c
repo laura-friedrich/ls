@@ -52,6 +52,9 @@ int main(int argc, char *argv[]){
       printf("\n");
     }else if(isFile(argv[i]) == 1){ // Print if argument is a file
       printFile(argv[i], "", argA, argL);
+    }else{
+      // Print out error if neither file nor directory
+      perror(argv[i]);
     }
   }
 
@@ -67,7 +70,12 @@ void printFile(char *fileString, char* directoryString, int argA, int argL){
     snprintf(fullFileString, 1024, "%s/%s", directoryString, fileString);
 
     struct stat buffer[sizeof(struct stat)]; // Create buffer for file
-    stat(fullFileString, buffer);
+
+    // If stat fails, print error
+    if(stat(fullFileString, buffer) == -1){
+      perror(fullFileString);
+    }
+
     /*if -a is an arg, show hidden files*/
     if(fileString[0] != '.' || argA == 1){
       int size = buffer->st_size;
