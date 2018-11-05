@@ -18,25 +18,25 @@
 #include <errno.h>
 
 void printPermissions(int permissions);
-void printDirectory(char *directoryString, int argA, int argL);
-void printFile(char *fileString, char* directoryString, int argA, int argL);
+void printDirectory(char *directoryString, int list_all, int provide_detail);
+void printFile(char *fileString, char* directoryString, int list_all, int provide_detail);
 int isDirectory(char *directoryString);
 int isFile(char *fileString);
 
 int main(int argc, char *argv[]){
   // Declaring local variable(s)
   int opt;
-  int argL = 0;
-  int argA = 0;
+  int provide_detail = 0;
+  int list_all = 0;
 
   /*Determine if -l, -a, -al, -la have been passed*/
   while ((opt = getopt(argc, argv, "la")) != -1) {
     switch (opt) {
       case 'l':
-        argL = 1;
+        provide_detail = 1;
         break;
       case 'a':
-        argA = 1;
+        list_all = 1;
         break;
       default: // Do nothing
         break;
@@ -48,10 +48,10 @@ int main(int argc, char *argv[]){
       if(argc - optind >= 2) {
         printf("%s:\n", argv[i]);
       }
-      printDirectory(argv[i], argA, argL);
+      printDirectory(argv[i], list_all, provide_detail);
       printf("\n");
     }else if(isFile(argv[i]) == 1){ // Print if argument is a file
-      printFile(argv[i], "", argA, argL);
+      printFile(argv[i], "", list_all, provide_detail);
     }else{
       // Print out error if neither file nor directory
       perror(argv[i]);
@@ -60,12 +60,12 @@ int main(int argc, char *argv[]){
 
   // Print current directory if no file or directory args
   if(argc - optind == 0) {
-    printDirectory(".", argA, argL);
+    printDirectory(".", list_all, provide_detail);
   }
 }
 
-void printFile(char *fileString, char* directoryString, int argA, int argL){
-  if (argL == 1){
+void printFile(char *fileString, char* directoryString, int list_all, int provide_detail){
+  if (provide_detail == 1){
     char fullFileString [1024]; // Set aside 1024 characters for full filestring
     snprintf(fullFileString, 1024, "%s/%s", directoryString, fileString);
 
@@ -77,17 +77,25 @@ void printFile(char *fileString, char* directoryString, int argA, int argL){
     }
 
     /*if -a is an arg, show hidden files*/
-    if(fileString[0] != '.' || argA == 1){
+    if(fileString[0] != '.' || list_all == 1){
       int size = buffer->st_size;
       int userID = buffer->st_uid;
       // Get username
       struct passwd *pws;
-      pws = getpwuid(userID);
+      if(getpwuid(userID) == NULL){
+        perror(""); // Print out error if getpwuid fails
+      }else{
+        pws = getpwuid(userID);
+      }
       char *username = pws->pw_name;
       //Get group name
       int groupID = buffer->st_gid;
       struct group *grid;
-      grid = getgrgid(groupID);
+      if(getgrgid(groupID) == NULL){
+        perror("");
+      }else{
+        grid = getgrgid(groupID);
+      }
       char *groupName = grid->gr_name;
       // Get time
       time_t t = buffer->st_mtime; /*st_mtime is type time_t */
@@ -101,13 +109,13 @@ void printFile(char *fileString, char* directoryString, int argA, int argL){
     }
   }else {
     /*if no args are given, just print file name*/
-    if(fileString[0] != '.' || argA == 1) {
+    if(fileString[0] != '.' || list_all == 1) {
       printf("%s\n", fileString);
     }
   }
 }
 
-void printDirectory(char *directoryString, int argA, int argL) {
+void printDirectory(char *directoryString, int list_all, int provide_detail) {
   // Declare local variables
   struct dirent *dp;
   // Check if argument is a directory
@@ -116,7 +124,7 @@ void printDirectory(char *directoryString, int argA, int argL) {
     while ((dp=readdir(currentDirectory)) != NULL) {
       // Loop through currentDirectory
       char *fileName = dp->d_name;
-      printFile(fileName, directoryString, argA, argL);
+      printFile(fileName, directoryString, list_all, provide_detail);
     }
     closedir(currentDirectory);
   }
