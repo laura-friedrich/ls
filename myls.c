@@ -67,7 +67,10 @@ int main(int argc, char *argv[]){
 void printFile(char *fileString, char* directoryString, int list_all, int provide_detail){
   if (provide_detail == 1){
     char fullFileString [1024]; // Set aside 1024 characters for full filestring
-    snprintf(fullFileString, 1024, "%s/%s", directoryString, fileString);
+    snprintf(fullFileString, 1024, "%s%s", directoryString, fileString);
+    if(strcmp(directoryString, "") != 0){
+      snprintf(fullFileString, 1024, "%s/%s", directoryString, fileString);
+    }
 
     struct stat buffer[sizeof(struct stat)]; // Create buffer for file
 
